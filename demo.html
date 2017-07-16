@@ -157,8 +157,7 @@ var annotated_phrases = [];
 
 <script>
 document.getElementById("preload-button").onclick = function(e) {
-  getData('annotations.json', function(filename, annotations){
-    annotated_phrases = annotations;
+  var onready = function(annotations) {
     var phrases = Object.keys(annotations);
     var posTextArea = document.getElementById("positive-samples");
     var negTextArea = document.getElementById("negative-samples");
@@ -172,7 +171,16 @@ document.getElementById("preload-button").onclick = function(e) {
         negTextArea.innerHTML += phrases[i]+'\n';
       }
     }
-  }, true);
+  };
+
+  if (annotated_phrases.length > 0) {
+    onready(annotated_phrases);
+  } else {
+    getData('annotations.json', function(filename, annotations){
+      annotated_phrases = annotations;
+      onready(annotations);
+    }, true);
+  }
 }
 document.getElementById("data-form").onsubmit = function(e) {
   data = [];
