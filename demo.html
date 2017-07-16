@@ -263,7 +263,7 @@ document.getElementById("data-form").onsubmit = function(e) {
 };
 
 document.getElementById("train-form").onsubmit = function(e) {
-  var epochs = e.srcElement.elements['train-epoch'].value;
+  var epochsNum = e.srcElement.elements['train-epoch'].value;
   var status;
   if (data.length == 0) {
     document.getElementById("data-form").onsubmit();
@@ -275,10 +275,12 @@ document.getElementById("train-form").onsubmit = function(e) {
     "epoch="+1+", loss=0.0"
   );
 
-  for(var iter=0;iter<epochs;iter++) {
+  // to shuffle data after each epoch:
+  var indeces= Array.apply(null, Array(data.length)).map(function (_, i) {return i;});
+  var iter=0;
+  var nextEpoch = function() {
     sumloss = 0;
     // shuffle the data!
-    indeces= Array.apply(null, Array(data.length)).map(function (_, i) {return i;});
     shuffle(indeces);
     data = data.map(function(_,i){return data[indeces[i]]});
     labels = labels.map(function(_,i){return labels[indeces[i]]});
@@ -299,6 +301,14 @@ document.getElementById("train-form").onsubmit = function(e) {
       "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
     );
     document.getElementById("status-log").innerHTML += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
+
+    iter++;
+    if (iter < epochsNum) {
+      window.setTimeout(nextEpoch, 100);
+    }
+  };
+  nextEpoch();
+  for(iter<epochs;iter++) {
 
   }
   document.getElementById("test-section").style.display = "block";
