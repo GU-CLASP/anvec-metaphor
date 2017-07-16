@@ -86,7 +86,7 @@
         <h2>Andjective-Noun composition learning to detect metaphoricity</h2>
         <p>Using this tool, one can train an adjective-noun composition function
           which can then be used to predict its metaphoricity.</p>
-        <p>First, one needs to provide a list of positive and negative examples 
+        <p>First, one needs to provide a list of positive and negative examples
           on each line to train the model. When this process is complete, one can
           test the model using different adjective-noun phrases.</p>
         <p>We recommend using at least 100 sample phrases, both metaphoric and literal. The insert
@@ -135,6 +135,8 @@
           <input type="submit" value="Test" />
         </form>
         <div id="results"></div>
+        <hr />
+        <button id="reset-button">Restart<button>
       </div>
     </div>
     <div class="row">
@@ -145,26 +147,35 @@
     </div>
   </div>
 <script>
-// The NN model:
-var net = new convnetjs.Net();
-net.makeLayers([
-  {type:'input', out_sx:1, out_sy:1, out_depth:600},
-  {type:'fc', num_neurons:300, activation: 'relu'},
-  {type:'softmax', num_classes:2},
-]);
+// The NN model to be initialised:
+var net, trainer;
 
-var trainer = new convnetjs.Trainer(net,{
-  method: 'adagrad',
-  batch_size: 30
-});
-
-// later we will fill these
+// later we will fill these:
 var data = [];
 var labels = [];
-// this one is just for debugging
+// this one is just for debugging:
 var data_str = [];
-// insert some phrases
+// insert some phrases:
 var annotated_phrases = [];
+
+// Model initialiser:
+var initModel = function() {
+  net = new convnetjs.Net();
+  net.makeLayers([
+    {type:'input', out_sx:1, out_sy:1, out_depth:600},
+    {type:'fc', num_neurons:300, activation: 'relu'},
+    {type:'softmax', num_classes:2},
+  ]);
+
+  trainer = new convnetjs.Trainer(net,{
+    method: 'adagrad',
+    batch_size: 30
+  });
+}
+
+// Initialise the model:
+initModel();
+
 </script>
 
 <script>
@@ -193,7 +204,19 @@ document.getElementById("insert-button").onclick = function(e) {
       onready(annotations);
     }, true);
   }
+}:
+
+document.getElementById("reset-button").onclick = function(e) {
+  document.getElementById("test-section").style.display = "none";
+  document.getElementById("train-section").style.display = "none";
+
+  data = [];
+  labels = [];
+  data_str = [];
+
+  initModel();
 }
+
 document.getElementById("data-form").onsubmit = function(e) {
   data = [];
   labels = [];
