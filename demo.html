@@ -15,7 +15,7 @@
     resize: none;
     height: 300px;
   }
-  #train-form, #test-form {
+  #train-section, #test-section {
     display: none;
   }
   </style>
@@ -110,7 +110,7 @@
         <div id="data-progress-bar"><div></div></div>
       </div>
     </div>
-    <div class="row">
+    <div class="row" id="train-section">
       <div class="column">
         <hr/>
         <form id="train-form">
@@ -121,7 +121,7 @@
         <div id="status-progress-bar"><div></div></div>
       </div>
     </div>
-    <div class="row">
+    <div class="row" id="test-section">
       <div class="column">
         <hr/>
         <form id="test-form">
@@ -239,7 +239,7 @@ document.getElementById("data-form").onsubmit = function(e) {
       labels.push(1);
       data_str.push(phrase);
     }
-    document.getElementById("train-form").style.display = "block";
+    document.getElementById("train-section").style.display = "block";
   }
 
   var onready = function(word, vector) {
@@ -297,7 +297,7 @@ document.getElementById("train-form").onsubmit = function(e) {
     );
 
   }
-  document.getElementById("test-form").style.display = "block";
+  document.getElementById("test-section").style.display = "block";
   return false;
 };
 
