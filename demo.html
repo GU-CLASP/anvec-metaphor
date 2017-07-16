@@ -273,15 +273,16 @@ document.getElementById("train-form").onsubmit = function(e) {
   // to shuffle data after each epoch store original data indices:
   var indeces= Array.apply(null, Array(data.length)).map(function (_, i) {return i;});
   var iter=0;
+  var sumloss = 0;
   var nextEpoch = function() {
-    sumloss = 0;
-
     updateProgressbar(
       document.getElementById("status-progress-bar"),
       epochsNum,
       iter+1,
       "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
     );
+    // re-initialize the sum of training loss:
+    sumloss = 0;
 
     // shuffle the data!
     shuffle(indeces);
