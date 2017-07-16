@@ -158,6 +158,7 @@ var annotated_phrases = [];
 <script>
 document.getElementById("preload-button").onclick = function(e) {
   getData('annotations.json', function(filename, annotations){
+    annotated_phrases = annotations;
     var phrases = Object.keys(annotations);
     var posTextArea = document.getElementById("positive-samples");
     var negTextArea = document.getElementById("positive-samples");
