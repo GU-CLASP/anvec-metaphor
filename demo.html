@@ -266,20 +266,23 @@ document.getElementById("train-form").onsubmit = function(e) {
   var epochsNum = e.srcElement.elements['train-epoch'].value;
   var status;
   if (data.length == 0) {
-    document.getElementById("data-form").onsubmit();
+    console.log("error! loaded embeddings first.");
+    return false;
   }
-  updateProgressbar(
-    document.getElementById("status-progress-bar"),
-    epochs,
-    1,
-    "epoch="+1+", loss=0.0"
-  );
 
-  // to shuffle data after each epoch:
+  // to shuffle data after each epoch store original data indices:
   var indeces= Array.apply(null, Array(data.length)).map(function (_, i) {return i;});
   var iter=0;
   var nextEpoch = function() {
     sumloss = 0;
+
+    updateProgressbar(
+      document.getElementById("status-progress-bar"),
+      epochsNum,
+      iter+1,
+      "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
+    );
+
     // shuffle the data!
     shuffle(indeces);
     data = data.map(function(_,i){return data[indeces[i]]});
@@ -287,19 +290,13 @@ document.getElementById("train-form").onsubmit = function(e) {
     data_str = data_str.map(function(_,i){return data_str[indeces[i]]});
 
     for(var i=0;i<data.length;i++) {
-      //console.log(data[i], labels[i]);
       status = trainer.train(data[i], labels[i]);
       sumloss += status.cost_loss;
-      //console.log(i, status);
     };
     console.log(sumloss/data.length);
 
-    updateProgressbar(
-      document.getElementById("status-progress-bar"),
-      epochs,
-      iter+1,
-      "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
-    );
+
+
     document.getElementById("status-log").innerHTML += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
 
     iter++;
