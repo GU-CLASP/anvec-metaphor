@@ -121,6 +121,7 @@ shallow, bright, deep, dim, sweet</code></p>
           <input type="submit" value="Train"/>
         </form>
         <div id="status-progress-bar"><div></div></div>
+        <pre><code id="status-log"></code></pre>
       </div>
     </div>
     <div class="row" id="test-section">
@@ -297,6 +298,7 @@ document.getElementById("train-form").onsubmit = function(e) {
       iter+1,
       "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
     );
+    document.getElementById("status-log").innerHtml += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
 
   }
   document.getElementById("test-section").style.display = "block";
