@@ -207,6 +207,8 @@ document.getElementById("insert-button").onclick = function(e) {
 };
 
 document.getElementById("reset-button").onclick = function(e) {
+  document.getElementById("status-progress-bar").style.display = "none";
+  document.getElementById("data-progress-bar").style.display = "none";
   document.getElementById("test-section").style.display = "none";
   document.getElementById("train-section").style.display = "none";
 
