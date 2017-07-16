@@ -161,13 +161,10 @@ document.getElementById("preload-button").onclick = function(e) {
     annotated_phrases = annotations;
     var phrases = Object.keys(annotations);
     var posTextArea = document.getElementById("positive-samples");
-    var negTextArea = document.getElementById("positive-samples");
+    var negTextArea = document.getElementById("negative-samples");
     posTextArea.innerHTML = "";
     negTextArea.innerHTML = "";
-    console.log(annotations);
-    console.log(phrases);
     shuffle(phrases);
-    console.log(phrases);
     for(var i=0; i<500; i++) {
       if (annotations[phrases[i]] == '1'){
         posTextArea.innerHTML += phrases[i]+'\n';
