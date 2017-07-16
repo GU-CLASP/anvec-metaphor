@@ -46,10 +46,10 @@
   }
 
   // ajax function which loads json fromat of word-vectors form data folder:
-  var getData = function (word, onready, is_file=false) {
+  var getData = function (word, onready, isFile=false) {
     var rawFile = new XMLHttpRequest();
     var filename = 'data/'+word+'.json';
-    if (isfile) {
+    if (isFile) {
       filename = word;
     };
     rawFile.overrideMimeType("application/json");
