@@ -110,13 +110,22 @@
           <input type="submit" class="button-primary" value="Load Embeddings"/>
         </form>
         <div id="data-progress-bar"><div></div></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="column">
+        <hr/>
         <form id="train-form">
           <label for="train-epoch">Epochs</label>
           <input type="text" id="train-epoch" value="20"/>
           <input type="submit" value="Train"/>
         </form>
-        <hr/>
         <div id="status-progress-bar"><div></div></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="column">
+        <hr/>
         <form id="test-form">
           <label for="test-sample">Test sample</label>
           <input type="text" placeholder="deep conversation" id="test-sample" />
@@ -164,7 +173,7 @@ document.getElementById("insert-button").onclick = function(e) {
     posTextArea.innerHTML = "";
     negTextArea.innerHTML = "";
     shuffle(phrases);
-    for(var i=0; i<500; i++) {
+    for(var i=0; i < 500; i++) {
       if (annotations[phrases[i]] == '1'){
         posTextArea.innerHTML += phrases[i]+'\n';
       } else {
