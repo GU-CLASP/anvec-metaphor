@@ -15,6 +15,9 @@
     resize: none;
     height: 300px;
   }
+  #train-form, #test-form {
+    display: none;
+  }
   </style>
   <script src="js/convnet-min.js"></script>
 </head>
@@ -223,6 +226,7 @@ document.getElementById("data-form").onsubmit = function(e) {
       labels.push(1);
       data_str.push(phrase);
     }
+    document.getElementById("train-form").style.display = "block";
   }
 
   var onready = function(word, vector) {
@@ -278,8 +282,9 @@ document.getElementById("train-form").onsubmit = function(e) {
       iter+1,
       "epoch="+(iter+1)+", loss="+sumloss/data.length
     );
-  }
 
+  }
+  document.getElementById("test-form").style.display = "block";
   return false;
 };
 
