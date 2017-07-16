@@ -300,13 +300,12 @@ document.getElementById("train-form").onsubmit = function(e) {
     iter++;
     if (iter < epochsNum) {
       window.setTimeout(nextEpoch, 100);
+    } else {
+      document.getElementById("test-section").style.display = "block";
     }
   };
   nextEpoch();
-  for(iter<epochs;iter++) {
 
-  }
-  document.getElementById("test-section").style.display = "block";
   return false;
 };
 
