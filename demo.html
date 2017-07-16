@@ -20,6 +20,64 @@
   }
   </style>
   <script src="js/convnet-min.js"></script>
+  <script>
+  /* ---- USEFUL FUNCTIONS ---- */
+
+  // shuffle function for javascript arrays:
+  // source: https://github.com/Daplie/knuth-shuffle
+  // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+  function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
+
+  // ajax function which loads json fromat of word-vectors form data folder:
+  var getData = function (word, onready, is_file=false) {
+    var rawFile = new XMLHttpRequest();
+    var filename = 'data/'+word+'.json';
+    if (isfile) {
+      filename = word;
+    };
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", filename, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            onready(word, JSON.parse(rawFile.responseText));
+        }
+    }
+    rawFile.send(null);
+  }
+
+  var updateProgressbar = function(element, total, progress, text) {
+    if (total >= 0 && progress >= 0) {
+      element.style.display = "block";
+      element.style.height = "30px";
+      element.childNodes[0].style.height = "30px";
+      element.childNodes[0].style.background = "#eeeeee";
+      element.childNodes[0].style.width = 100*progress/total + "%";
+      if (typeof(text) == 'undefined') {
+        element.childNodes[0].innerHTML = Math.round(progress/total*10000)/100 + "% (" + progress + "/" + total + ")";
+      } else {
+        element.childNodes[0].innerHTML = text;
+      }
+    }
+  }
+
+  </script>
 </head>
 <body>
   <div class="container">
@@ -34,9 +92,9 @@
         <p>In this demo, we are using <a href="https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/">these pretrained word embeddings</a>
           and our vocabulary is limited to <a href="http://bit.ly/1TQ5czN">words from this list</a>.
           The list has only  these adjectives:</p>
-        <p>heated, clean, strong, dense, clear, warm, soft, sour, brilliant,
+        <pre>heated, clean, strong, dense, clear, warm, soft, sour, brilliant,
           murky, solid, weak, icy, rough, bitter, smooth, cold, heavy, shallow,
-          bright, deep, dim, sweet</p>
+          bright, deep, dim, sweet</pre>
         <form id="data-form">
           <div class="row">
             <div class="six columns">
@@ -48,7 +106,8 @@
               <textarea class="u-full-width" placeholder="e.g. deep sea" id="negative-samples"></textarea>
             </div>
           </div>
-          <input type="submit" value="Load Embeddings"/>
+          <input type="button" id="preload-button" value="Preload random 500">
+          <input type="submit" class="button-primary" value="Load Embeddings"/>
         </form>
         <div id="data-progress-bar"><div></div></div>
         <form id="train-form">
@@ -66,116 +125,52 @@
         <div id="results"></div>
       </div>
     </div>
+    <div class="row">
+      <div class="column" style="margin-top: 25px">
+        <p>This tool is using <a href="http://convnetjs.com">ConvNetJS</a> to
+          train the neural network model.</p>
+      </div>
+    </div>
   </div>
-
 <script>
-
 // The NN model:
-var layer_defs = [
+var net = new convnetjs.Net();
+net.makeLayers([
   {type:'input', out_sx:1, out_sy:1, out_depth:600},
   {type:'fc', num_neurons:300, activation: 'relu'},
-  //{type:'fc', num_neurons:1, activation: 'sigmoid'},
-  //{type:'regression', num_neurons:1},
   {type:'softmax', num_classes:2},
-];
-
-// create a net
-var net = new convnetjs.Net();
-net.makeLayers(layer_defs);
-//net.layers.splice(5, 1);
+]);
 
 var trainer = new convnetjs.Trainer(net,{
   method: 'adagrad',
   batch_size: 30
 });
 
-console.log(net);
-
+// later we will fill these
 var data = [];
 var labels = [];
+// this one is just for debugging
 var data_str = [];
-
-// test
-/**
-for (var i=0; i<1000; i++){
-  var d = []
-  var l = 0;
-  if (Math.random()>0.5) {
-    l = 1;
-  }
-  for (var j=0; j<600; j++){
-    if ((j%2) * l > 0) {
-      d.push(0.2+Math.random());
-    } else {
-      d.push(Math.random());
-    }
-  }
-  //console.log(l, d);
-  var x = new convnetjs.Vol(1,1,600,0.0);
-  x.w = new Float64Array(d);
-  data.push(x);
-  labels.push(l);
-}
-**/
+// preload some phrases
+var annotated_phrases = [];
 </script>
 
 <script>
-
-var textAreas = document.getElementsByTagName('textarea');
-for(var i=0; i<textAreas.length; i++) {
-  textAreas[i].innerHTML = textAreas[i].innerHTML.trim().split('\n').map(function(str){return str.trim()}).join('\n');
-}
-
-// shuffle function for javascript arrays:
-// source: https://github.com/Daplie/knuth-shuffle
-// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-}
-
-// ajax function which loads json fromat of word-vectors form data folder:
-var getData = function (word, onready) {
-  var rawFile = new XMLHttpRequest();
-  rawFile.overrideMimeType("application/json");
-  rawFile.open("GET", 'data/'+word+'.json', true);
-  rawFile.onreadystatechange = function() {
-      if (rawFile.readyState === 4 && rawFile.status == "200") {
-          onready(word, JSON.parse(rawFile.responseText));
+document.getElementById("preload-button").onclick = function(e) {
+  getData('annotations.json', function(filename, annotations){
+    var phrases = Object.keys(annotations);
+    var posTextArea = document.getElementById("positive-samples");
+    var negTextArea = document.getElementById("positive-samples");
+    shuffle(phrases);
+    for(var i=0; i<500; i++) {
+      if (annotations[phrases[i]] == '1'){
+        posTextArea.innerHTML += phrases[i]+'\n';
+      } else {
+        negTextArea.innerHTML += phrases[i]+'\n';
       }
-  }
-  rawFile.send(null);
-}
-
-var updateProgressbar = function(element, total, progress, text) {
-  if (total >= 0 && progress >= 0) {
-    element.style.display = "block";
-    element.style.height = "30px";
-    element.childNodes[0].style.height = "30px";
-    element.childNodes[0].style.background = "#eeeeee";
-    element.childNodes[0].style.width = 100*progress/total + "%";
-    if (typeof(text) == 'undefined') {
-      element.childNodes[0].innerHTML = 100*progress/total + "% (" + progress + "/" + total + ")";
-    } else {
-      element.childNodes[0].innerHTML = text;
     }
-  }
+  }, true);
 }
-
 document.getElementById("data-form").onsubmit = function(e) {
   data = [];
   labels = [];
@@ -280,7 +275,7 @@ document.getElementById("train-form").onsubmit = function(e) {
       document.getElementById("status-progress-bar"),
       epochs,
       iter+1,
-      "epoch="+(iter+1)+", loss="+sumloss/data.length
+      "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
     );
 
   }
