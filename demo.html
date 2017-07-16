@@ -298,7 +298,7 @@ document.getElementById("train-form").onsubmit = function(e) {
       iter+1,
       "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
     );
-    document.getElementById("status-log").innerHtml += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
+    document.getElementById("status-log").innerHTML += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
 
   }
   document.getElementById("test-section").style.display = "block";
