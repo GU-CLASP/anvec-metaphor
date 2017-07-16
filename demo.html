@@ -295,8 +295,6 @@ document.getElementById("train-form").onsubmit = function(e) {
     };
     console.log(sumloss/data.length);
 
-
-
     document.getElementById("status-log").innerHTML += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
 
     iter++;
