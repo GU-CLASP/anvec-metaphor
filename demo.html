@@ -161,6 +161,9 @@ document.getElementById("preload-button").onclick = function(e) {
     var phrases = Object.keys(annotations);
     var posTextArea = document.getElementById("positive-samples");
     var negTextArea = document.getElementById("positive-samples");
+    posTextArea.innerHTML = "";
+    negTextArea.innerHTML = "";
+
     console.log(phrases);
     shuffle(phrases);
     console.log(phrases);
