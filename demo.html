@@ -294,9 +294,7 @@ document.getElementById("test-form").onsubmit = function(e){
     var x = new convnetjs.Vol(1,1,600,0.0);
     x.w = new Float64Array(embeddings[phrase[0]].concat(embeddings[phrase[1]]));
     score = net.forward(x);
-    if (score.w[1] > 0.5) {
-      document.getElementById("results").innerHTML = "<h5>Score: " + Math.round(score.w[1]*10000)/100 + "%<h5>";
-    }
+    document.getElementById("results").innerHTML = "<h5>Score: " + Math.round(score.w[0]*10000)/100 + "%<h5>";
   }
 
   var onready = function(word, vector) {
