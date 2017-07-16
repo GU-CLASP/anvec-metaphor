@@ -204,8 +204,8 @@ document.getElementById("data-form").onsubmit = function(e) {
   } else {
     this_form = e.srcElement;
   }
-  var neg_samples = this_form.elements['negative-samples'].value.trim().split('\n');
-  var pos_samples = this_form.elements['positive-samples'].value.trim().split('\n');
+  var neg_samples = this_form.elements['negative-samples'].value.toLowerCase().trim().split('\n');
+  var pos_samples = this_form.elements['positive-samples'].value.toLowerCase().trim().split('\n');
   var embeddings = {};
 
   var phrases = neg_samples.concat(pos_samples);
@@ -314,7 +314,7 @@ document.getElementById("train-form").onsubmit = function(e) {
 
 document.getElementById("test-form").onsubmit = function(e){
 
-  var phrase = e.srcElement.elements['test-sample'].value.trim().split(' ');
+  var phrase = e.srcElement.elements['test-sample'].value.toLowerCase().trim().split(' ');
   var embeddings = {};
   var embeddings_ready = 0;
   var embeddings_onready = function(){
