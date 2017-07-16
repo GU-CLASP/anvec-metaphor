@@ -106,7 +106,7 @@
               <textarea class="u-full-width" placeholder="e.g. deep sea" id="negative-samples"></textarea>
             </div>
           </div>
-          <input type="button" id="preload-button" value="Preload random 500">
+          <input type="button" id="insert-button" value="Insert random 500">
           <input type="submit" class="button-primary" value="Load Embeddings"/>
         </form>
         <div id="data-progress-bar"><div></div></div>
@@ -151,12 +151,12 @@ var data = [];
 var labels = [];
 // this one is just for debugging
 var data_str = [];
-// preload some phrases
+// insert some phrases
 var annotated_phrases = [];
 </script>
 
 <script>
-document.getElementById("preload-button").onclick = function(e) {
+document.getElementById("insert-button").onclick = function(e) {
   var onready = function(annotations) {
     var phrases = Object.keys(annotations);
     var posTextArea = document.getElementById("positive-samples");
