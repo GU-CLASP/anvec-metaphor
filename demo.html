@@ -15,7 +15,7 @@
     resize: none;
     height: 300px;
   }
-  #train-section, #test-section {
+  #test-section {
     display: none;
   }
   </style>
@@ -118,9 +118,37 @@
       <div class="column">
         <hr/>
         <form id="train-form">
-          <label for="train-epoch">Epochs</label>
-          <input type="text" id="train-epoch" value="20"/>
-          <input type="submit" value="Train"/>
+          <div class="row model-layer">
+            <div class="four columns">
+              <label for="layer-size[0]">Size</label>
+              <input type="text" name="layer-size[0]" id="layer-size[0]" value="300"/>
+            </div>
+            <div class="four columns">
+              <label for="layer-activation[0]">Activation</label>
+              <input type="text" name="layer-activation[0]" id="layer-activation[0]" value="linear"/>
+            </div>
+            <div class="four columns">
+            </div>
+          </div>
+          <div class="row modify-layer">
+            <div class="columns">
+              <button id="add-layer" class="button-primary">Add Layer</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="four columns">
+              <label for="validation">Validations</label>
+              <input type="text" name="validation" id="validation" value="0.2"/>
+            </div>
+            <div class="four columns">
+              <label for="train-epoch">Epochs</label>
+              <input type="text" name="train-epoch" id="train-epoch" value="20"/>
+            </div>
+            <div class="four columns">
+              <label>&nbsp;</label>
+              <input type="submit" value="Train"/>
+            </div>
+          </div>
         </form>
         <div id="status-progress-bar"><div></div></div>
         <!--<pre><code id="status-log"></code></pre>-->
@@ -157,28 +185,77 @@ var labels = [];
 var data_str = [];
 // insert some phrases:
 var annotated_phrases = [];
-
 // Model initialiser:
 var initModel = function() {
+
+  var readModel = function() {
+    var layers = [];
+    var elements = document.getElementsByClassName("model-layer");
+    for(var i=0;i<elements.length;i++){
+      var layer = {type: 'fc', num_neurons: Number(elements[i].children[0].children[1].value)};
+      if (elements[i].children[1].children[1].value != "" && elements[i].children[1].children[1].value != "linear") {
+        layer.activation = elements[i].children[1].children[1].value;
+      };
+      layers.push(layer);
+    }
+
+    return layers;
+  }
+
+  var userLayers = readModel();
+  var inputLayer = [{type:'input', out_sx:1, out_sy:1, out_depth:600}];
+  var lossLayer = [{type:'softmax', num_classes:2}]
+  var finalLayers = inputLayer.concat(userLayers).concat(lossLayer);
+
   net = new convnetjs.Net();
-  net.makeLayers([
-    {type:'input', out_sx:1, out_sy:1, out_depth:600},
-    {type:'fc', num_neurons:300, activation: 'relu'},
-    {type:'softmax', num_classes:2},
-  ]);
+  net.makeLayers(finalLayers);
 
   trainer = new convnetjs.Trainer(net,{
     method: 'adagrad',
     batch_size: 30
   });
 }
-
-// Initialise the model:
-initModel();
-
 </script>
 
 <script>
+
+document.getElementById("add-layer").onclick = function(e) {
+  var elements = document.getElementsByClassName("model-layer");
+  var layerSize = elements.length;
+  // we don't want to crash our browser!
+  if (layerSize >= 4) {
+    return false;
+  }
+
+  var newLayer = elements[layerSize-1].cloneNode(true);
+  var newLayerId = Number(elements[layerSize-1].children[0].children[0].getAttribute('for').match(/layer-size\[(\d+)\]/)[1])+1
+
+  newLayer.children[0].children["layer-size["+(newLayerId-1)+"]"].id = "layer-size["+newLayerId+"]";
+  newLayer.children[0].children["layer-size["+(newLayerId-1)+"]"].name = "layer-size["+newLayerId+"]";
+  newLayer.children[0].children[0].setAttribute('for', "layer-size["+newLayerId+"]");
+  newLayer.children[1].children["layer-activation["+(newLayerId-1)+"]"].id = "layer-activation["+newLayerId+"]";
+  newLayer.children[1].children["layer-activation["+(newLayerId-1)+"]"].name = "layer-activation["+newLayerId+"]";
+  newLayer.children[1].children[0].setAttribute('for', "layer-activation["+newLayerId+"]");
+  newLayer.children[2].innerHTML = '<label>&nbsp;</label><input type="button" class="remove-layer" value="Remove Layer"></input>';
+  elements[layerSize-1].parentNode.insertBefore(newLayer, elements[layerSize-1].nextSibling);
+
+  for (var i=0; i<document.getElementsByClassName("remove-layer").length;i++) {
+    document.getElementsByClassName("remove-layer")[i].onclick = function(e) {
+      e.srcElement.parentNode.parentNode.remove();
+      document.getElementById("add-layer").style.display = "block";
+      return false;
+    };
+  }
+
+  if (document.getElementsByClassName("model-layer").length == 4) {
+    document.getElementById("add-layer").style.display = "none";
+  } else {
+    document.getElementById("add-layer").style.display = "block";
+  }
+
+  return false;
+}
+
 document.getElementById("insert-button").onclick = function(e) {
   var onready = function(annotations) {
     var phrases = Object.keys(annotations);
@@ -212,11 +289,10 @@ document.getElementById("restart-button").onclick = function(e) {
   document.getElementById("test-section").style.display = "none";
   document.getElementById("train-section").style.display = "none";
 
+  // reset the data:
   data = [];
   labels = [];
   data_str = [];
-
-  initModel();
 }
 
 document.getElementById("data-form").onsubmit = function(e) {
@@ -269,7 +345,6 @@ document.getElementById("data-form").onsubmit = function(e) {
       labels.push(1);
       data_str.push(phrase);
     }
-    document.getElementById("train-section").style.display = "block";
   }
 
   var onready = function(word, vector) {
@@ -290,38 +365,56 @@ document.getElementById("data-form").onsubmit = function(e) {
 };
 
 document.getElementById("train-form").onsubmit = function(e) {
+  // Initialise the model:
+  console.log(e);
+  initModel();
+
   var epochsNum = e.srcElement.elements['train-epoch'].value;
+  var validation = Math.round(data.length * Number(e.srcElement.elements['validation'].value));
   var status;
   if (data.length == 0) {
     console.log("error! loaded embeddings first.");
     return false;
   }
-
   // to shuffle data after each epoch store original data indices:
   var indeces= Array.apply(null, Array(data.length)).map(function (_, i) {return i;});
   var iter=0;
   var sumloss = 0;
+  var valid_correct = 0;
+
+  // initial shuffle to separate the validation from training:
+  shuffle(indeces);
+  data = data.map(function(_,i){return data[indeces[i]]});
+  labels = labels.map(function(_,i){return labels[indeces[i]]});
+  indeces= Array.apply(null, Array(data.length-validation)).map(function (_, i) {return i;});
+  // The epoch loop:
   var nextEpoch = function() {
     updateProgressbar(
       document.getElementById("status-progress-bar"),
       epochsNum,
       iter+1,
-      "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000)
+      "epoch="+ (iter+1) +
+      ", loss=" + (Math.round(sumloss/data.length*1000)/1000)+
+      ", validation_acc="+(Math.round(valid_correct/validation*10000)/100)+"%"
     );
     // re-initialize the sum of training loss:
     sumloss = 0;
-
+    valid_correct = 0;
     // shuffle the data!
     shuffle(indeces);
-    data = data.map(function(_,i){return data[indeces[i]]});
-    labels = labels.map(function(_,i){return labels[indeces[i]]});
-    data_str = data_str.map(function(_,i){return data_str[indeces[i]]});
+    data_shuffled = data.map(function(_,i){return data[indeces[i]]});
+    labels_shuffled = labels.map(function(_,i){return labels[indeces[i]]});
 
     for(var i=0;i<data.length;i++) {
-      status = trainer.train(data[i], labels[i]);
-      sumloss += status.cost_loss;
+      if (i < data.length-validation) {
+        status = trainer.train(data_shuffled[i], labels_shuffled[i]);
+        sumloss += status.cost_loss;
+      } else {
+        console.log(valid_correct, net.forward(data[i]).w[1], labels[i]);
+        valid_correct += Math.round(net.forward(data[i]).w[1]) === labels[i] ? 1.0 : 0.0;
+      }
     };
-    console.log(sumloss/data.length);
+    console.log(sumloss/(data.length-validation), valid_correct/validation);
 
     //document.getElementById("status-log").innerHTML += "epoch="+(iter+1)+", loss=" + (Math.round(sumloss/data.length*1000)/1000) + "\n";
 
