@@ -241,7 +241,7 @@ document.getElementById("add-layer").onclick = function(e) {
 
   for (var i=0; i<document.getElementsByClassName("remove-layer").length;i++) {
     document.getElementsByClassName("remove-layer")[i].onclick = function(e) {
-      e.srcElement.parentNode.parentNode.remove();
+      document.getElementsByClassName("remove-layer")[i].parentNode.parentNode.remove();
       document.getElementById("add-layer").style.display = "block";
       return false;
     };
@@ -363,9 +363,9 @@ document.getElementById("train-form").onsubmit = function(e) {
   // Initialise the model:
   console.log(e);
   initModel();
-
-  var epochsNum = e.srcElement.elements['train-epoch'].value;
-  var validation = Math.round(data.length * Number(e.srcElement.elements['validation'].value));
+  var this_form = document.getElementById("train-form");
+  var epochsNum = this_form.elements['train-epoch'].value;
+  var validation = Math.round(data.length * Number(this_form.elements['validation'].value));
   var status;
   if (data.length == 0) {
     console.log("error! loaded embeddings first.");
@@ -426,8 +426,8 @@ document.getElementById("train-form").onsubmit = function(e) {
 };
 
 document.getElementById("test-form").onsubmit = function(e){
-
-  var phrase = e.srcElement.elements['test-sample'].value.toLowerCase().trim().split(' ');
+  var this_form = document.getElementById("test-form");
+  var phrase = this_form.elements['test-sample'].value.toLowerCase().trim().split(' ');
   var embeddings = {};
   var embeddings_ready = 0;
   var embeddings_onready = function(){
