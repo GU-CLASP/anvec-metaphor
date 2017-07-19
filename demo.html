@@ -241,6 +241,8 @@ document.getElementById("add-layer").onclick = function(e) {
 
   for (var i=0; i<document.getElementsByClassName("remove-layer").length;i++) {
     document.getElementsByClassName("remove-layer")[i].onclick = function(e) {
+      console.log(e);
+      console.log(this);
       document.getElementsByClassName("remove-layer")[i].parentNode.parentNode.remove();
       document.getElementById("add-layer").style.display = "block";
       return false;
