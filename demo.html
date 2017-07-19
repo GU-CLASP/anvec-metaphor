@@ -299,12 +299,7 @@ document.getElementById("data-form").onsubmit = function(e) {
   data = [];
   labels = [];
   data_str = [];
-  var this_form;
-  if (typeof(e)=='undefined') {
-    this_form = document.getElementById("data-form");
-  } else {
-    this_form = e.srcElement;
-  }
+  var this_form = document.getElementById("data-form");
   var neg_samples = this_form.elements['negative-samples'].value.toLowerCase().trim().split('\n');
   var pos_samples = this_form.elements['positive-samples'].value.toLowerCase().trim().split('\n');
   var embeddings = {};
